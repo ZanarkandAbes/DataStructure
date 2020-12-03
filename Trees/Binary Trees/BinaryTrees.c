@@ -13,15 +13,16 @@ int InserirNaArvore(noArv **arvore, int conteudo);
 void ImprimeArvorePreOrdem(noArv *arvore);
 void ImprimeArvoreInOrdem(noArv *arvore);
 void ImprimeArvorePosOrdem(noArv *arvore);
-void BuscarElementoNaArvore(noArv *arvore);
-void RemoverElementoNaArvore(noArv *arvore);
+int BuscarElementoNaArvore(noArv *arvore, int conteudo);
+int RemoverElementoNaArvore(noArv **arvore, int conteudo);
+noArv *RemoveNoArvoreAtual(noArv *arvoreAtual);
 int AlturaArvore(noArv *arvore);
 
 int main(){
 
     int optionValue = 0, secondOptionValue = 0;
     int conteudo = 0, retornoInsercao = 0;
-    char escolha, escolhaTerminar;
+    char escolha, escolhaTerminar, escolhaTerminarDeBuscar, escolhaTerminarDeBuscarERemover;
 
     noArv **arvore;
     CriaArvore(arvore);
@@ -79,10 +80,34 @@ int main(){
                 }
                 break;
             case 3:
-
+                do{
+                    printf("Digite um numero para buscar na arvore binaria: \n");
+                    scanf("%i", &conteudo);
+                    if(BuscarElementoNaArvore(*arvore, conteudo) == 1){
+                        printf("O conteudo %i foi encontrado na arvore ! \n", conteudo);
+                    }else{
+                        printf("O conteudo %i nao foi encontrado na arvore ! \n", conteudo);
+                    }
+                    printf("Deseja procurar outro valor? [s- sim | n- nao] \n");
+                    setbuf(stdin, NULL);
+                    scanf("%c", &escolhaTerminarDeBuscar);
+                    system("cls");
+                }while(escolhaTerminarDeBuscar != 'n');
                 break;
             case 4:
-
+                do{
+                    printf("Digite um numero para remover na arvore binaria: \n");
+                    scanf("%i", &conteudo);
+                    if(RemoverElementoNaArvore(arvore, conteudo) == 1){
+                        printf("O conteudo %i foi removido com sucesso da arvore ! \n", conteudo);
+                    }else{
+                        printf("O conteudo %i nao foi removido da arvore ! \n", conteudo);
+                    }
+                    printf("Deseja remover outro valor? [s- sim | n- nao] \n");
+                    setbuf(stdin, NULL);
+                    scanf("%c", &escolhaTerminarDeBuscarERemover);
+                    system("cls");
+                }while(escolhaTerminarDeBuscarERemover != 'n');
                 break;
             case 5:
                 printf("Calculando a altura da arvore binaria: \n");
@@ -174,6 +199,78 @@ void ImprimeArvorePosOrdem(noArv *arvore){
         ImprimeArvorePosOrdem(arvore->dir);
         printf("%i ", arvore->conteudo);
     }
+}
+
+int BuscarElementoNaArvore(noArv *arvore, int conteudo){
+
+    if(arvore == NULL){
+        return 0;
+    }
+    noArv *arvoreAtual = arvore;
+    while(arvoreAtual != NULL){
+        if(conteudo == arvoreAtual->conteudo){
+            return 1;
+        }
+        if(conteudo > arvoreAtual->conteudo){
+            arvoreAtual = arvoreAtual->dir;
+        }else{
+            arvoreAtual = arvoreAtual->esq;
+        }
+    }
+    return 0;
+}
+
+int RemoverElementoNaArvore(noArv **arvore, int conteudo){
+
+    if(*arvore == NULL){
+        return 0;
+    }
+
+    noArv *arvoreAnterior = NULL;
+    noArv *arvoreAtual = *arvore;
+    while(arvoreAtual != NULL){
+        if(conteudo == arvoreAtual->conteudo){
+            if(arvoreAtual == *arvore){
+                *arvore = RemoveNoArvoreAtual(arvoreAtual);
+            }else{
+                if(arvoreAnterior->dir == arvoreAtual){
+                    arvoreAnterior->dir = RemoveNoArvoreAtual(arvoreAtual);
+                }else{
+                    arvoreAnterior->esq = RemoveNoArvoreAtual(arvoreAtual);
+                }
+            }
+            return 1;
+        }
+        arvoreAnterior = arvoreAtual;
+        if(conteudo > arvoreAtual->conteudo){
+            arvoreAtual = arvoreAtual->dir;
+        }else{
+            arvoreAtual = arvoreAtual->esq;
+        }
+    }
+}
+
+noArv *RemoveNoArvoreAtual(noArv *arvoreAtual){
+    noArv *arvoreUm, *arvoreDois;
+    if(arvoreAtual->esq == NULL){
+        arvoreDois = arvoreAtual->dir;
+        free(arvoreAtual);
+        return arvoreDois;
+    }
+    arvoreUm = arvoreAtual;
+    arvoreDois = arvoreAtual->esq;
+    while(arvoreDois->dir != NULL){
+        arvoreUm = arvoreDois;
+        arvoreDois = arvoreDois->dir;
+    }
+
+    if(arvoreUm != arvoreAtual){
+        arvoreUm->dir = arvoreDois->esq;
+        arvoreDois->esq = arvoreAtual->esq;
+    }
+    arvoreDois->dir = arvoreAtual->dir;
+    free(arvoreAtual);
+    return arvoreDois;
 }
 
 int AlturaArvore(noArv *arvore){
