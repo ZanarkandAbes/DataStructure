@@ -18,12 +18,13 @@ void RotacaoRR(noArv **arvore);
 void RotacaoLR(noArv **arvore);
 void RotacaoRL(noArv **arvore);
 
+noArv *ProcuraMenor(noArv *arvoreAtual);
 noArv *RemoveNoArvoreAtual(noArv *arvoreAtual);
 noArv *CriaNoArvore(int conteudo);
 
 int InserirNaArvoreAVL(noArv **arvore, int conteudo);
-int BuscarElementoNaArvore(noArv *arvore, int conteudo);
-int RemoverElementoNaArvore(noArv **arvore, int conteudo);
+int BuscarElementoNaArvoreAVL(noArv *arvore, int conteudo);
+int RemoverElementoNaArvoreAVL(noArv **arvore, int conteudo);
 int AlturaArvore(noArv *arvore);
 int AlturaNo(noArv *arvore);
 int FatorBalanceamentoNo(noArv *arvore);
@@ -41,11 +42,11 @@ int main(){
 
     do{
         printf("Trabalho Bimestral 01 (Estrutura de Dados II) - IFSP Campinas (Arvore AVL) \n");
-        printf("1 - Inserir na arvore AVL [FUNCIONANDO]\n");
-        printf("2 - Imprimir a arvore AVL [FUNCIONANDO]\n");
-        printf("3 - Buscar um elemento na arvore AVL: [FUNCIONANDO]\n");
-        printf("4 - Remover um elemento na arvore AVL: [NAO FUNCIONANDO]\n");
-        printf("5 - Altura da arvore AVL: [FUNCIONANDO]\n");
+        printf("1 - Inserir na arvore AVL:\n");
+        printf("2 - Imprimir a arvore AVL:\n");
+        printf("3 - Buscar um elemento na arvore AVL:\n");
+        printf("4 - Remover um elemento na arvore AVL:\n");
+        printf("5 - Altura da arvore AVL:\n");
         scanf("%i", &optionValue);
 
         switch(optionValue){
@@ -92,9 +93,9 @@ int main(){
                 break;
             case 3:
                 do{
-                    printf("Digite um numero para buscar na arvore binaria: \n");
+                    printf("Digite um numero para buscar na arvore AVL: \n");
                     scanf("%i", &conteudo);
-                    if(BuscarElementoNaArvore(*arvore, conteudo) == 1){
+                    if(BuscarElementoNaArvoreAVL(*arvore, conteudo) == 1){
                         printf("O conteudo %i foi encontrado na arvore ! \n", conteudo);
                     }else{
                         printf("O conteudo %i nao foi encontrado na arvore ! \n", conteudo);
@@ -107,9 +108,9 @@ int main(){
                 break;
             case 4:
                 do{
-                    printf("Digite um numero para remover na arvore binaria: \n");
+                    printf("Digite um numero para remover na arvore AVL: \n");
                     scanf("%i", &conteudo);
-                    if(RemoverElementoNaArvore(arvore, conteudo) == 1){
+                    if(RemoverElementoNaArvoreAVL(arvore, conteudo) == 1){
                         printf("O conteudo %i foi removido com sucesso da arvore ! \n", conteudo);
                     }else{
                         printf("O conteudo %i nao foi removido da arvore ! \n", conteudo);
@@ -228,7 +229,7 @@ void ImprimeArvorePosOrdem(noArv *arvore){
     }
 }
 
-int BuscarElementoNaArvore(noArv *arvore, int conteudo){
+int BuscarElementoNaArvoreAVL(noArv *arvore, int conteudo){
 
     if(arvore == NULL){
         return 0;
@@ -247,34 +248,64 @@ int BuscarElementoNaArvore(noArv *arvore, int conteudo){
     return 0;
 }
 
-int RemoverElementoNaArvore(noArv **arvore, int conteudo){
+int RemoverElementoNaArvoreAVL(noArv **arvore, int conteudo){
 
     if(*arvore == NULL){
+        printf("O valor a ser removido nao existe! \n");
         return 0;
     }
-
-    noArv *arvoreAnterior = NULL;
-    noArv *arvoreAtual = *arvore;
-    while(arvoreAtual != NULL){
-        if(conteudo == arvoreAtual->conteudo){
-            if(arvoreAtual == *arvore){
-                *arvore = RemoveNoArvoreAtual(arvoreAtual);
-            }else{
-                if(arvoreAnterior->dir == arvoreAtual){
-                    arvoreAnterior->dir = RemoveNoArvoreAtual(arvoreAtual);
+    int resposta;
+    if(conteudo < (*arvore)->conteudo){
+        resposta = RemoverElementoNaArvoreAVL(&(*arvore)->esq, conteudo);
+        if(resposta == 1){
+            (*arvore)->fatorBalanceamento = FatorBalanceamentoNo(*arvore);
+            if((*arvore)->fatorBalanceamento >= 2){
+                if(AlturaNo((*arvore)->dir->esq) <= AlturaNo((*arvore)->dir->dir)){
+                    RotacaoRR(arvore);
                 }else{
-                    arvoreAnterior->esq = RemoveNoArvoreAtual(arvoreAtual);
+                    RotacaoRL(arvore);
                 }
             }
-            return 1;
-        }
-        arvoreAnterior = arvoreAtual;
-        if(conteudo > arvoreAtual->conteudo){
-            arvoreAtual = arvoreAtual->dir;
-        }else{
-            arvoreAtual = arvoreAtual->esq;
         }
     }
+    if((*arvore)->conteudo < conteudo){
+        resposta = RemoverElementoNaArvoreAVL(&(*arvore)->dir, conteudo);
+        if(resposta == 1){
+            (*arvore)->fatorBalanceamento = FatorBalanceamentoNo(*arvore);
+            if((*arvore)->fatorBalanceamento <= -2){
+                if(AlturaNo((*arvore)->esq->dir) <= AlturaNo((*arvore)->esq->esq)){
+                    RotacaoLL(arvore);
+                }else{
+                    RotacaoLR(arvore);
+                }
+            }
+        }
+    }
+    if((*arvore)->conteudo == conteudo){
+        if(((*arvore)->esq == NULL) || (*arvore)->dir == NULL){
+            noArv *noArvoreAntigo = *arvore;
+            if((*arvore)->esq != NULL){
+                *arvore = (*arvore)->esq;
+            }else{
+                *arvore = (*arvore)->dir;
+            }
+            free(noArvoreAntigo);
+        }else{
+            noArv *arvoreTemporaria = ProcuraMenor((*arvore)->dir);
+            (*arvore)->conteudo = arvoreTemporaria->conteudo;
+            RemoverElementoNaArvoreAVL(&(*arvore)->dir, (*arvore)->conteudo);
+            (*arvore)->fatorBalanceamento = FatorBalanceamentoNo(*arvore);
+            if((*arvore)->fatorBalanceamento <= -2){
+                if(AlturaNo((*arvore)->esq->dir) <= AlturaNo((*arvore)->esq->esq)){
+                    RotacaoLL(arvore);
+                }else{
+                    RotacaoLR(arvore);
+                }
+            }
+        }
+        return 1;
+    }
+    return resposta;
 }
 
 noArv *RemoveNoArvoreAtual(noArv *arvoreAtual){
@@ -298,6 +329,16 @@ noArv *RemoveNoArvoreAtual(noArv *arvoreAtual){
     arvoreDois->dir = arvoreAtual->dir;
     free(arvoreAtual);
     return arvoreDois;
+}
+
+noArv *ProcuraMenor(noArv *arvoreAtual){
+    noArv *noArvore1 = arvoreAtual;
+    noArv *noArvore2 = arvoreAtual->esq;
+    while(noArvore2 != NULL){
+        noArvore1 = noArvore2;
+        noArvore2 = noArvore2->esq;
+    }
+    return noArvore1;
 }
 
 int AlturaArvore(noArv *arvore){
