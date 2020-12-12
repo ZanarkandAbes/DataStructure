@@ -172,8 +172,10 @@ int InserirNaArvoreAVL(noArv **arvore, int conteudo){
                 arvoreAtual->fatorBalanceamento = FatorBalanceamentoNo(arvoreAtual);
                 if(arvoreAtual->fatorBalanceamento >= 2){
                     if(conteudo < (*arvore)->esq->conteudo){
+                        printf("Rotacao LL sendo executada ! \n");
                         RotacaoLL(arvore);
                     }else{
+                        printf("Rotacao LR sendo executada ! \n");
                         RotacaoLR(arvore);
                     }
                 }
@@ -185,8 +187,10 @@ int InserirNaArvoreAVL(noArv **arvore, int conteudo){
                     arvoreAtual->fatorBalanceamento = FatorBalanceamentoNo(arvoreAtual);
                     if(arvoreAtual->fatorBalanceamento <= -2){
                         if((*arvore)->dir->conteudo < conteudo){
+                            printf("Rotacao RR sendo executada ! \n");
                             RotacaoRR(arvore);
                         }else{
+                            printf("Rotacao RL sendo executada ! \n");
                             RotacaoRL(arvore);
                         }
                     }
