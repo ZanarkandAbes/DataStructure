@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef struct grafoMatriz{
+typedef struct grafoMatriz {
     int vertices;
     int arestas;
     int **adjacentes;
@@ -33,7 +33,7 @@ void BuscaProfundidade(GrafoLista *grafo, int inicial, int *visitado, int contad
 void BuscaLarguraGrafoLista(GrafoLista *grafo, int inicial, int *visitado);
 void BuscaMenorCaminhoGrafoLista(GrafoLista *grafo, int inicial, int *anterior, float *distancia);
 
-int ProcuraMenorDistancia(float distancia[], int *visitado, int numeroVertices);
+int ProcuraMenorDistancia(float *distancia, int *visitado, int numeroVertices);
 int InsereArestaLista(GrafoLista *grafo, int origem, int destino, int verificaDigrafo, float peso);
 int RemoveArestaLista(GrafoLista *grafo, int origem, int destino, int verificaDigrafo);
 
@@ -525,7 +525,7 @@ void BuscaLarguraGrafoLista(GrafoLista *grafo, int inicial, int *visitado){
     free(fila);
 }
 
-int ProcuraMenorDistancia(float distancia[], int *visitado, int numeroVertices){
+int ProcuraMenorDistancia(float *distancia, int *visitado, int numeroVertices){
 
     int i, menor = -1, primeiro = 1;
     for(i = 0; i < numeroVertices; i++){
